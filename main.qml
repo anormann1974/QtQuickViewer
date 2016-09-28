@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.0
 import QtQuick.Dialogs 1.0
+import QtQuickViewer 1.0
 
 ApplicationWindow {
     id: root
@@ -11,6 +12,7 @@ ApplicationWindow {
     title: qsTr("QtQuickViewer - OpenSceneGraph Viewer based on QtQuick")
 
     function onShowConsole(value) {
+        label.visible = labelFrame.visible = value
     }
 
     menuBar: MenuBar {
@@ -22,14 +24,18 @@ ApplicationWindow {
                 iconSource: "open.png"
                 onTriggered: fileDialog.open()
             }
+
+            MenuSeparator {}
+
+            MenuItem {
+                text: qsTr("Exit")
+                onTriggered: close()
+            }
         }
     }
 
     toolBar: ToolBar {
         RowLayout {
-            //anchors.left: parent.left
-            //anchors.top: parent.top
-            //anchors.bottom: parent.bottom
             anchors.fill: parent
             spacing: 6
 
@@ -44,12 +50,40 @@ ApplicationWindow {
             Item { Layout.fillWidth: true }
 
             CheckBox {
-                checked: false
+                checked: label.visible
                 text: qsTr("Show console output")
                 Layout.alignment: Qt.AlignRight
                 onClicked: onShowConsole(checked)
             }
         }
+    }
+
+    RenderView {
+        id: renderView
+        anchors.fill: parent
+        focus: true
+    }
+
+    Rectangle {
+        id: labelFrame
+        radius: 5
+        color: "white"
+        border.color: "black"
+        opacity: 0.8
+        anchors.fill: label
+        anchors.margins: -10
+    }
+
+    Text {
+        id: label
+        anchors.bottom: renderView.bottom
+        anchors.left: renderView.left
+        anchors.right: renderView.right
+        anchors.margins: 20
+        wrapMode: Text.WordWrap
+        color: "black"
+        horizontalAlignment: Text.AlignHCenter
+        text: qsTr("You can manipulate the scene with your mouse")
     }
 
     FileDialog {
@@ -65,10 +99,17 @@ ApplicationWindow {
         onAccepted: {
             controller.loadFile(fileUrl)
         }
-
-        onRejected: {
-            console.log("File rejected")
-        }
     }
 
+    Controller {
+        id: controller
+        renderView: renderView
+    }
+
+    Timer {
+        interval: 10
+        running: true
+        repeat: true
+        onTriggered: renderView.update()
+    }
 }
