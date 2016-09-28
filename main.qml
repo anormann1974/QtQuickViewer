@@ -12,7 +12,7 @@ ApplicationWindow {
     title: qsTr("QtQuickViewer - OpenSceneGraph Viewer based on QtQuick")
 
     function onShowConsole(value) {
-        label.visible = labelFrame.visible = value
+        consoleArea.visible = value
     }
 
     menuBar: MenuBar {
@@ -50,7 +50,7 @@ ApplicationWindow {
             Item { Layout.fillWidth: true }
 
             CheckBox {
-                checked: label.visible
+                checked: consoleArea.visible
                 text: qsTr("Show console output")
                 Layout.alignment: Qt.AlignRight
                 onClicked: onShowConsole(checked)
@@ -60,11 +60,21 @@ ApplicationWindow {
 
     RenderView {
         id: renderView
-        anchors.fill: parent
+        //anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: {
+            if (consoleArea.visible)
+                consoleArea.top
+            else
+                parent.bottom
+        }
         focus: true
     }
 
     Rectangle {
+        visible: false
         id: labelFrame
         radius: 5
         color: "white"
@@ -75,6 +85,7 @@ ApplicationWindow {
     }
 
     Text {
+        visible: false
         id: label
         anchors.bottom: renderView.bottom
         anchors.left: renderView.left
@@ -84,6 +95,17 @@ ApplicationWindow {
         color: "black"
         horizontalAlignment: Text.AlignHCenter
         text: qsTr("You can manipulate the scene with your mouse")
+    }
+
+    TextArea {
+        id: consoleArea
+        visible: false
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.margins: 0
+        readOnly: true
+        opacity: 0.7
     }
 
     FileDialog {
