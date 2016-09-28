@@ -8,7 +8,7 @@ ApplicationWindow {
     visible: true
     width: 1280
     height: 720
-    title: qsTr("QtQuickOSG - OpenSceneGraph Viewer bases on QtQuick 2")
+    title: qsTr("QtQuickViewer - OpenSceneGraph Viewer based on QtQuick")
 
     function onShowConsole(value) {
     }
