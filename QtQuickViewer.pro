@@ -1,6 +1,6 @@
 QT += qml quick
 
-CONFIG += c++11
+CONFIG += c++11 qtquickcompiler
 
 HEADERS += \
     Controller.h \
@@ -26,6 +26,13 @@ win32 {
     } else {
         LIBS += -losg -lOpenThreads -losgGA -losgViewer -losgDB -losgUtil -losgText
     }
+}
+
+macx {
+    INCLUDEPATH += /Users/andre/Developer/OSG-3.5.4/include
+    DEPENDPATH += /Users/andre/Developer/OSG-3.5.4/include
+    LIBS += -L/Users/andre/Developer/OSG-3.5.4/lib
+    LIBS += -losg -lOpenThreads -losgGA -losgViewer -losgDB -losgUtil -losgText
 }
 
 # Default rules for deployment.

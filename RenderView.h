@@ -4,6 +4,10 @@
 #include <QQuickFramebufferObject>
 #include <osg/Node>
 
+namespace osgGA {
+class EventQueue;
+}
+
 class RenderView : public QQuickFramebufferObject
 {
     Q_OBJECT
@@ -19,7 +23,7 @@ public:
     osg::Node* model() const;
     void setModel(osg::Node *node);
 
-    PendingEvents& pendingEvents();
+    osgGA::EventQueue& pendingEvents();
 
 signals:
     void modelChanged(osg::Node *node);
@@ -37,7 +41,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 private:
-    QScopedPointer<PendingEvents> _pendingEvents;
+    osg::ref_ptr<osgGA::EventQueue> _pendingEvents;
     osg::ref_ptr<osg::Node> _model;
 };
 

@@ -14,16 +14,10 @@
 #include <osg/Camera>
 
 
-static QLoggingCategory lc("RenderView");
-
-class RenderView::PendingEvents : public osgGA::EventQueue
+namespace
 {
-public:
-    PendingEvents()
-        : osgGA::EventQueue()
-    {
-    }
-};
+
+QLoggingCategory lc("RenderView");
 
 class RendererOpenSceneGraph : public QQuickFramebufferObject::Renderer
 {
@@ -66,7 +60,10 @@ public:
             if (sizeHasChanged())
                 updateSize();
 
+            // GL_TEXTURE_BIT
+            glPushAttrib(GL_ALL_ATTRIB_BITS);
             _viewer->frame();
+            glPopAttrib();
         }
     }
 
@@ -150,9 +147,11 @@ static int button(const QMouseEvent& event)
     }
 }
 
+}
+
 RenderView::RenderView()
     : QQuickFramebufferObject()
-    , _pendingEvents(new PendingEvents)
+    , _pendingEvents(new osgGA::EventQueue)
 {
     setAcceptedMouseButtons(Qt::AllButtons);
 }
@@ -181,7 +180,7 @@ void RenderView::setModel(osg::Node *node)
     emit modelChanged(node);
 }
 
-RenderView::PendingEvents &RenderView::pendingEvents()
+osgGA::EventQueue &RenderView::pendingEvents()
 {
     return *_pendingEvents;
 }
@@ -189,7 +188,7 @@ RenderView::PendingEvents &RenderView::pendingEvents()
 QSGNode* RenderView::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *upnData)
 {
     QSGNode *node = QQuickFramebufferObject::updatePaintNode(oldNode, upnData);
-    QSGSimpleTextureNode &textureNode = dynamic_cast<QSGSimpleTextureNode&>(*node);
+    QSGSimpleTextureNode &textureNode = static_cast<QSGSimpleTextureNode&>(*node);
 
     textureNode.setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 
