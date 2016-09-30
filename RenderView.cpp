@@ -56,6 +56,7 @@ public:
         if (_viewer.valid())
         {
             QOpenGLContext::currentContext()->functions()->glUseProgram(0);
+            glGetError();
 
             if (sizeHasChanged())
                 updateSize();

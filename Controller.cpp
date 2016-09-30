@@ -1,4 +1,5 @@
 #include "Controller.h"
+
 #include <QLoggingCategory>
 #include <QDebug>
 #include <QUrl>
@@ -9,9 +10,6 @@ QLoggingCategory lc("Controller");
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    static QMutex mutex;
-    QMutexLocker lock(&mutex);
-
     QString tmpBuf;
     QTextStream log(&tmpBuf);
 
@@ -30,7 +28,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
             log << "[Fatal] " << "[" << context.category << "] " << msg << "\n";
     }
 
-    std::wcerr << tmpBuf.toStdWString();
+    DebugStream *debugStream = DebugStream::instance();
+    emit debugStream->clientProcessStdout(tmpBuf);
 
     if (type == QtFatalMsg)
         abort();
@@ -40,16 +39,27 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 Controller::Controller(QObject *parent)
     : QObject(parent)
+    , _handler(new MyNotifyHandler)
 {
     qInstallMessageHandler(myMessageOutput);
+
+    DebugStream *debugStream = DebugStream::instance();
+    connect(debugStream, &DebugStream::clientProcessStdout, this, &Controller::consoleOuput);
+
+    osg::setNotifyHandler(_handler);
+    connect(_handler, &MyNotifyHandler::writeNotify, this, &Controller::consoleOuput);
+}
+
+Controller::~Controller()
+{
 }
 
 void Controller::loadFile(const QUrl &url)
 {
+    qCDebug(lc) << "loadFile:" << url.toLocalFile();
     const std::string filename(url.toLocalFile().toLocal8Bit().constData());
     osg::Node *node = osgDB::readNodeFile(filename);
     _renderView->setModel(node);
-    qCDebug(lc) << "loadFile:" << url.toLocalFile() << node;
 }
 
 RenderView* Controller::renderView() const
@@ -64,4 +74,10 @@ void Controller::setRenderView(RenderView *renderView)
 
     _renderView = renderView;
     emit renderViewChanged(renderView);
+}
+
+void Controller::consoleOuput(QString message)
+{
+    _console.append(message);
+    emit consoleChanged(message);
 }

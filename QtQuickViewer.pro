@@ -4,11 +4,13 @@ CONFIG += c++11 qtquickcompiler
 
 HEADERS += \
     Controller.h \
-    RenderView.h
+    RenderView.h \
+    DebugStream.h
 
 SOURCES += main.cpp \
     Controller.cpp \
-    RenderView.cpp
+    RenderView.cpp \
+    DebugStream.cpp
 
 RESOURCES += qml.qrc
 
@@ -26,6 +28,8 @@ win32 {
     } else {
         LIBS += -losg -lOpenThreads -losgGA -losgViewer -losgDB -losgUtil -losgText
     }
+
+    LIBS += -lOpenGL32
 }
 
 macx {

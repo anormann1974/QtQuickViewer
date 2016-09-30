@@ -105,7 +105,9 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.margins: 0
         readOnly: true
-        opacity: 0.7
+        opacity: 1.0
+        text: controller.console
+        textColor: "black"
     }
 
     FileDialog {
@@ -126,11 +128,15 @@ ApplicationWindow {
     Controller {
         id: controller
         renderView: renderView
+
+//        onConsoleOuput: {
+//            console.log(message)
+//        }
     }
 
     Timer {
         interval: 10
-        running: true
+        running: false
         repeat: true
         onTriggered: renderView.update()
     }
